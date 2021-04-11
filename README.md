@@ -7,7 +7,7 @@
 
 ## If you plan to collaborate with one or two classmates, what are their names?
 
-Joann Chandra and Corinne Margel
+Joann Zambito and Corinne Margel
 
 ## Do you have any questions of your own?
 
