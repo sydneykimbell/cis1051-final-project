@@ -1,0 +1,13 @@
+import numpy as np
+import random as r
+
+grid = np.zeros((4, 4))
+position = list(zip(*np.where(grid == 0)))
+
+
+for pos in r.sample(position, k=2)
+  if r.random() < .1:
+    grid[pos] = 4
+  else:
+    grid[pos] = 2
+  
