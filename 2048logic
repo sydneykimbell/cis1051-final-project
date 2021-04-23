@@ -134,7 +134,7 @@ display()
 
 gameOver = False
 while not gameOver:
-    move = input("Enter 'w', 'a', 's', or 'd' to move")
+    move = input("Enter 'w', 'a', 's', or 'd' to move:" + ' ' )
 
     validInput = True
 
