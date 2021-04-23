@@ -1,13 +1,171 @@
-import numpy as np
 import random as r
+import copy
+grid = []
+boardSize = 4
+def display():
+    largest = grid[0][0]
+    for row in grid:
+        for element in row:
+            if element > largest:
+                largest = element
+    numSpaces = len(str(largest))
 
-grid = np.zeros((4, 4))
-position = list(zip(*np.where(grid == 0)))
+    for row in grid:
+        currRow = "|"
+        for element in row:
+            if element == 0:
+                currRow += " " * numSpaces + "|"
+            else:
+                currRow += (" " * (numSpaces - len(str(element)))) + str(element) + "|"
+        print(currRow)
+    print()
 
 
-for pos in r.sample(position, k=2)
-  if r.random() < .1:
-    grid[pos] = 4
-  else:
-    grid[pos] = 2
+def mergeOneRowL(row):
+    for j in range(boardSize-1):
+        for i in range(boardSize-1, 0, -1):
+            if row[i-1] == 0:
+                row[i-1] = row[i]
+                row[i] = 0
+    for i in range(boardSize-1):
+        if row[i] == row[i+1]:
+            row[i] *= 2
+            row[i+1]=0
+    for i in range(boardSize-1, 0, -1):
+        if row[i-1] == 0:
+            row[i-1] = row[i]
+            row[i] = 0
+    return row
+
+def merge_left(currentBoard):
+    for i in range(boardSize):
+        currentBoard[i] = mergeOneRowL(currentBoard[i])
+    return currentBoard
+
+def reverse(row):
+    new = []
+    for i in range(boardSize -1, -1, -1):
+        new.append(row[i])
+    return new
+
+def merge_right(currentBoard):
+    for i in range(boardSize):
+        currentBoard[i] = reverse(currentBoard[i])
+        currentBoard[i] = mergeOneRowL(currentBoard[i])
+        currentBoard[i] = reverse(currentBoard[i])
+    return currentBoard
+
+def transpose(currentBoard):
+    for j in range(boardSize):
+        for i in range(j, boardSize):
+            if not i == j:
+                temp = currentBoard[j][i]
+                currentBoard[j][i] = currentBoard[i][j]
+                currentBoard[i][j] = temp
+    return currentBoard
+
+def merge_up(currentBoard):
+    currentBoard = transpose(currentBoard)
+    currentBoard = merge_left(currentBoard)
+    currentBoard = transpose(currentBoard)
+    return currentBoard
+
+def merge_down(currentBoard):
+    currentBoard = transpose(currentBoard)
+    currentBoard = merge_right(currentBoard)
+    currentBoard = transpose(currentBoard)
+    return currentBoard
+
+def pickNewValue():
+    if r.randint(1,10) == 1:
+        return 4
+    else:
+        return 2
+
+def addNewValue():
+    rowNum = r.randint(0, boardSize - 1)
+    colNum = r.randint(0, boardSize - 1)
+   
+    while not grid[rowNum][colNum] == 0:
+        rowNum = r.randint(0, boardSize - 1)
+        colNum = r.randint(0, boardSize - 1)
+
+    grid[rowNum][colNum] = pickNewValue()
+
+def won():
+    for row in grid:
+        if 2048 in row:
+            return True
+    return False
+
+def noMoves():
+    tempBoard1 = copy.deepcopy(grid)
+    tempBoard2 = copy.deepcopy(grid)
+
+    tempBoard1 = merge_down(tempBoard1)
+    if tempBoard1 == tempBoard2:
+        tempBoard1 = merge_up(tempBoard1)
+        if tempBoard1 == tempBoard2:
+            tempBoard1 = merge_left(tempBoard1)
+            if tempBoard1 == tempBoard2:
+                tempBoard1 = merge_right(tempBoard1)
+                if tempBoard1 == tempBoard2:
+                    return True
+    return False
+
+
+for i in range(boardSize):
+    row = []
+    for j in range(boardSize):
+        row.append(0)
+    grid.append(row)
+
+numNeeded = 2
+while numNeeded > 0:
+    rowNum = r.randint(0, boardSize - 1)
+    colNum = r.randint(0, boardSize - 1)
+
+    if grid[rowNum][colNum] == 0:
+        grid[rowNum][colNum] = pickNewValue()
+        numNeeded -= 1
+
+print("The objective of the game is to obtain the 2048 tile. Press 'w' to merge up, 'a' to merge left, 's' to merge down, and 'd' to merge right")
+display()
+
+gameOver = False
+while not gameOver:
+    move = input("Enter 'w', 'a', 's', or 'd' to move")
+
+    validInput = True
+
+    tempBoard = copy.deepcopy(grid)
+
+
+    if move == "d":
+        grid = merge_right(grid)
+    elif move == "w":
+        grid = merge_up(grid)
+    elif move == "a":
+        grid = merge_left(grid)
+    elif move == "s":
+        grid = merge_down(grid)
+    else:
+        validInput = False
+
+    if not validInput:
+        print("Your input was not valid, please try again")
+    else:
+        if grid == tempBoard:
+            print("Try a different direction")
+        else:
+            if won():
+                display()
+                print("You won!")
+                gameOver = True
+            else:
+                addNewValue()
+                display()
+                if noMoves():
+                    print("Game over!")
+                    gameOver = True
   
